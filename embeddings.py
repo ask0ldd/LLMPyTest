@@ -15,19 +15,24 @@ documents = ["cat", "dog", "car"]
 
 text = "This is a test document."
 
-def getEmbeddingsDistance(pairA, pairB) :
-    return evaluator.evaluate_string_pairs(prediction=pairA, prediction_b=pairB)
-
 def getEmbeddingsQuery(text) : 
     return embeddings.embed_query(text)
 
 def getEmbeddingsDocuments(texts) :
     return embeddings.embed_documents(texts)
 
+def getEmbeddingsDistance(pairA, pairB) :
+    return evaluator.evaluate_string_pairs(prediction=pairA, prediction_b=pairB)
+
+def getEmbeddingsDistanceNP(pairA, pairB) :
+    return np.linalg.norm(np.array(getEmbeddingsQuery(pairA)) - np.array(getEmbeddingsQuery(pairB)))
+
 print(getEmbeddingsQuery(text))
 print(getEmbeddingsDocuments(documents))
 print(getEmbeddingsDistance("cat", "car"))
 print(getEmbeddingsDistance("cat", "because"))
-print(np.linalg.norm(np.array(getEmbeddingsDocuments("cat")[0]) - np.array(getEmbeddingsDocuments("car")[0])))
-print(np.linalg.norm(np.array(getEmbeddingsDocuments("cat")[0]) - np.array(getEmbeddingsDocuments("because")[0])))
-print(np.linalg.norm(np.array(getEmbeddingsDocuments("man")[0]) - np.array(getEmbeddingsDocuments("king")[0])))
+print(getEmbeddingsDistance("man", "king"))
+print(getEmbeddingsDistanceNP("cat", "car"))
+print(getEmbeddingsDistanceNP("cat", "because"))
+print(getEmbeddingsDistanceNP("man", "king"))
+print(np.linalg.norm(np.array([0,1]) - np.array([1,0])))
