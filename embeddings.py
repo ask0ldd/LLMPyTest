@@ -10,19 +10,19 @@ embeddings = LlamaCppEmbeddings(model_path="G:\AI\mistral-7b-instruct-v0.1.Q5_K_
 
 evaluator = load_evaluator("pairwise_embedding_distance", distance_metric=EmbeddingDistance.COSINE, embeddings=embeddings)
 
-# doc_result = embeddings.embed_documents(["cat", "dog", "car"])
+documents = ["cat", "dog", "car"]
 
-'''text = "This is a test document."
+text = "This is a test document."
 
-query_result = embeddings.embed_query(text)
+def getEmbeddingsDistance(pairA, pairB) :
+    return evaluator.evaluate_string_pairs(prediction=pairA, prediction_b=pairB)
 
-doc_result = embeddings.embed_documents([text])
+def getEmbeddingsQuery(text) : 
+    return embeddings.embed_query(text)
 
-print(query_result)'''
-# print(doc_result)
+def getEmbeddingsDocuments(texts) :
+    return embeddings.embed_documents(texts)
 
-result = evaluator.evaluate_string_pairs(prediction="cat", prediction_b="car")
-print(result)
-
-result = evaluator.evaluate_string_pairs(prediction="man", prediction_b="king")
-print(result)
+print(getEmbeddingsDistance("cat", "car"))
+print(getEmbeddingsQuery(text))
+print(getEmbeddingsDocuments(documents))
