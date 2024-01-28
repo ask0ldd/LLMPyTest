@@ -2,7 +2,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 # from langchain_community.document_loaders import WebBaseLoader
 # https://github.com/ggerganov/llama.cpp/blob/master/examples/embedding/embedding.cpp
 # https://python.langchain.com/docs/integrations/text_embedding/llamacpp
-# from langchain.embeddings.llamacpp import LlamaCppEmbeddings
+from langchain.embeddings.llamacpp import LlamaCppEmbeddings
 from langchain_community.llms import LlamaCpp
 from langchain.callbacks.manager import CallbackManager
 from langchain.prompts import PromptTemplate
@@ -31,19 +31,20 @@ embed_model_id = 'sentence-transformers/all-MiniLM-L6-v2'
 
 device = f'cuda:{cuda.current_device()}' if cuda.is_available() else 'cpu'
 
-'''embed_model = HuggingFaceEmbeddings(
-    model_name=embed_model_id,
-    model_kwargs={'device': device},
-    encode_kwargs={'device': device, 'batch_size': 32}
-)'''
-
 def get_retriever():
-    documents = TextLoader(file_path="G:\AI\state_of_the_union.txt", encoding="utf-8").load()
+    documents = TextLoader(file_path="G:\AI\state_of_the_union3.txt", encoding="utf-8").load()
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
     docs = text_splitter.split_documents(documents)
-    # embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+    embeddings = LlamaCppEmbeddings(
+        model_path="G:\AI\mistral-7b-instruct-v0.1.Q5_K_M.gguf",
+        n_threads=3,
+        n_gpu_layers=16,
+        n_ctx=2048,
+        n_batch = 2048, # Should be between 1 and n_ctx, consider the amount of VRAM in your GPU.
+        verbose=True,  # Verbose is required to pass to the callback manager
+    )
     # db = DocArrayInMemorySearch.from_documents(docs, embeddings)
-    embeddings = SentenceTransformer('all-MiniLM-L6-v2')
+    # embeddings = SentenceTransformer('all-MiniLM-L6-v2')
     db = DocArrayHnswSearch.from_documents(docs, embeddings, work_dir="hnswlib_store/", n_dim=1536)
     retriever = db.as_retriever(search_type="mmr", search_kwargs={"k": 5, "fetch_k": 10})
     return retriever
@@ -117,7 +118,8 @@ llm_chain = new_llmchain(retriever)
 
 template = "{question}"
 # prompt = PromptTemplate(template=template, input_variables=["which american forces have been mobilized to protect the NATO countries?"])
-prompt = """which american forces have been mobilized to protect the NATO countries?"""
+# prompt = """which american forces have been mobilized to protect the NATO countries?"""
+prompt = """what kept us apart?"""
 
 response = llm_chain.invoke(prompt)
 
